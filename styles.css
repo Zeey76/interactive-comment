@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body {
+  background-color: hsl(228, 33%, 97%);
+}
+
+.comment-section {
+  max-width: 40rem;
+}
+
+.replies {
+  width: 90%;
+}
+
+body{
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 40rem) {
+  .commentt {
+    flex-direction: column-reverse;
+  }
+
+  .reply {
+    flex-direction: column-reverse;
+  }
+
+  .score {
+    flex-direction: row;
+    padding: 0.4rem 0.7rem;
+  }
+
+  .replies {
+    width: 100%;
+  }
+  .comment-actions {
+    display: flex;
+    position: absolute;
+    bottom: 1.4rem;
+    right: 1.4rem;
+  }
+}
+
+
+.attribution {
+  font-size: 11px;
+  text-align: center;
+}
+
+.attribution a {
+  color: hsl(228, 45%, 44%);
+}

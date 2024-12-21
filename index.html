@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- displays site properly based on user's device -->
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./images/favicon-32x32.png"
+    />
+
+    <title>Frontend Mentor | Interactive comments section</title>
+    <link href="./output.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div
+      class="container flex min-h-screen flex-col items-center justify-center gap-8"
+    >
+      <div class="comment-section flex flex-col gap-4 p-5 justify-center ml-auto mr-auto">
+        <!-- Pull dynamic content from the data.json file -->
+        <div class="flex flex-col gap-4 w-full">
+          <div class="comments flex flex-col gap-4 w-full"></div>
+          
+        </div>
+        <div class="user-input flex items-start gap-3 rounded-lg bg-white p-5">
+          <img src="./images/avatars/image-juliusomo.png" class="h-9 w-9" />
+          <textarea
+            class="new-comment h-24 w-full resize-none overflow-y-auto rounded-lg border border-gray-300 p-2"
+            placeholder="Add a comment..."
+          ></textarea>
+          <button
+            class="send-button rounded bg-Moderate-blue px-4 py-2 font-bold uppercase text-white"
+          >
+            Send
+          </button>
+        </div>
+        
+      </div>
+      <div class="attribution">
+        Challenge by
+        <a href="https://www.frontendmentor.io?ref=challenge" target="_blank"
+          >Frontend Mentor</a
+        >. Coded by <a href="#">Your Name Here</a>.
+      </div>
+    </div>
+    <script src="./java.js"></script>
+  </body>
+</html>
