@@ -130,7 +130,7 @@ const showReplyBox = (commentId, replyId = null) => {
     if (parentContainer.classList.contains("comment-container")) {
       parentContainer.innerHTML = `<p class="comment-content break-words whitespace-pre-wrap">${originalContent}</p>`;
     } else {
-      parentContainer.innerHTML = `<p class="break-words whitespace-pre-wrap"><span class="reply-username text-Moderate-blue font-bold">@${originalContent.split(" ")[0]}</span> ${originalContent.split(" ").slice(1).join(" ")}</p>`;
+      parentContainer.innerHTML = `<p class="break-words whitespace-pre-wrap">${originalContent}</p>
     }
   }
   const existingReplyBox = document.querySelector(".reply-box");
