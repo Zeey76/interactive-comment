@@ -2,7 +2,7 @@ let commentsData = {};
 async function fetchData() {
   try {
     const response = await fetch("./data.json");
-    if (!response.ok) throw new Error("Failed to fetch advice");
+    if (!response.ok) throw new Error("Failed to fetch data");
 
     commentsData = await response.json();
     commentMessages(commentsData);
