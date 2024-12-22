@@ -6,6 +6,7 @@ async function fetchData() {
 
     commentsData = await response.json();
     commentMessages(commentsData);
+    setInterval(updateTime, 1000);
   } catch (error) {
     console.error("Error fetching data");
   }
@@ -38,7 +39,7 @@ function commentMessages(comments) {
             <div class="flex gap-4 items-center">
               <img src="${comment.user.image.webp}" class="w-9">
               <p>${comment.user.username}</p>
-              <p>${comment.createdAt}</p>
+              <p class="created-at">${comment.timesAgo ? comment.timesAgo : comment.createdAt}</p>
               <div class="comment-actions ml-auto">
                 ${
                   comment.user.username === comments.currentUser.username
@@ -76,7 +77,7 @@ function commentMessages(comments) {
             <div class="flex gap-4 items-center">
               <img src="${reply.user.image.webp}" class="w-9">
               <p>${reply.user.username}</p>
-              <p>${reply.createdAt}</p>
+              <p class="created-at">${reply.timesAgo ? reply.timesAgo : reply.createdAt}</p>
               <div class="comment-actions ml-auto">
                 ${
                   reply.user.username === comments.currentUser.username
@@ -117,7 +118,7 @@ const addNewComment = () => {
   };
   commentsData.comments.push(newComment);
   newCommentInput.value = "";
-  updateTime(newComment)
+  updateTime(newComment);
   commentMessages(commentsData);
 };
 
@@ -125,7 +126,7 @@ const showReplyBox = (commentId, replyId = null) => {
   // Remove any existing edit textarea or reply box
   const existingEditBox = document.querySelector(".edit-textarea");
   if (existingEditBox) {
-    commentMessages(commentsData)
+    commentMessages(commentsData);
   }
   const existingReplyBox = document.querySelector(".reply-box");
   if (existingReplyBox) {
@@ -157,7 +158,7 @@ const editComment = (commentId, commentContent) => {
   // Remove any existing edit textarea or reply box
   const existingEditBox = document.querySelector(".edit-textarea");
   if (existingEditBox) {
-    commentMessages(commentsData)
+    commentMessages(commentsData);
   }
   const existingReplyBox = document.querySelector(".reply-box");
   if (existingReplyBox) {
@@ -197,7 +198,7 @@ const editReply = (commentId, replyId, replyContent) => {
   // Remove any existing edit textarea or reply box
   const existingEditBox = document.querySelector(".edit-textarea");
   if (existingEditBox) {
-    commentMessages(commentsData)
+    commentMessages(commentsData);
   }
   const existingReplyBox = document.querySelector(".reply-box");
   if (existingReplyBox) {
@@ -243,19 +244,18 @@ const addReply = (commentId, replyId = null) => {
 
   const comment = commentsData.comments.find(
     (comment) => comment.id === commentId,
-  )
+  );
 
   if (comment) {
     let username = "";
     if (replyId) {
-      const reply = comment.replies.find((reply) => reply.id === replyId)
+      const reply = comment.replies.find((reply) => reply.id === replyId);
       if (reply) {
-        username = reply.user.username
+        username = reply.user.username;
       }
     } else {
-      username = comment.user.username 
+      username = comment.user.username;
     }
-
 
     const newReply = {
       id: comment.id,
@@ -269,18 +269,20 @@ const addReply = (commentId, replyId = null) => {
           webp: "./images/avatars/image-juliusomo.webp",
         },
         username: "juliusomo",
-      }
+      },
     };
 
     if (replyId) {
-      const parentReplyIndex = comment.replies.findIndex((reply) => reply.id === replyId);
+      const parentReplyIndex = comment.replies.findIndex(
+        (reply) => reply.id === replyId,
+      );
       if (parentReplyIndex !== -1) {
         comment.replies.splice(parentReplyIndex + 1, 0, newReply);
       }
     } else {
-      comment.replies.push(newReply)
+      comment.replies.push(newReply);
     }
-    updateTime(newReply)
+    updateTime(newReply);
     commentMessages(commentsData);
   }
 };
@@ -312,31 +314,43 @@ const deleteReply = (commentId, replyId) => {
 const sendButton = document.querySelector(".send-button");
 sendButton.addEventListener("click", addNewComment);
 
-function updateTime (reply) {
-  const update = setInterval(() => {
-    const now = new Date();
-    const createdAtDate = new Date(reply.createdAt);
-    const timeDifference = now - createdAtDate;
-    const secondsAgo = Math.floor(timeDifference / 1000);
-    const minutesAgo = Math.floor(secondsAgo / 60);
-    const hoursAgo = Math.floor(minutesAgo / 60);
-
-    let timesAgo = "";
-    if (secondsAgo < 60) {
-      timesAgo = `${secondsAgo} second${secondsAgo > 1 ? "s" : ""} ago`;
-    } else if (minutesAgo < 60) {
-      timesAgo = `${minutesAgo} minute${minutesAgo > 1 ? "s" : ""} ago`;
-    } else if (hoursAgo < 24) {
-      timesAgo = `${hoursAgo} hour${hoursAgo > 1 ? "s" : ""} ago`;
-    } else {
-      const daysAgo = Math.floor(hoursAgo / 24);
-      timesAgo = `${daysAgo} day${daysAgo > 1 ? "s" : ""} ago`
+function updateTime() {
+  commentsData.comments.forEach((comment) => {
+    const commentElement = document.querySelector(`.created-at[data-id="comment-${comment.id}"]`);
+    if (commentElement) {
+      commentElement.textContent = calculateTimeAgo(comment.createdAt);
     }
-    reply.createdAt = timesAgo;
-    commentMessages(commentsData)
-    if (hoursAgo >= 24) {
-      clearInterval(update)
-    }
-  }, 1000)
+    comment.replies.forEach((reply) => {
+      const replyElement = document.querySelector(`.created-at[data-id="reply-${reply.id}"]`);
+      if (replyElement) {
+        replyElement.textContent = calculateTimeAgo(reply.createdAt);
+      }
+    });
+  });
 }
+
+function calculateTimeAgo(date) {
+  const update = setInterval( () => {
+  const now = new Date();
+  const createdAtDate = new Date(date);
+  const timeDifference = now - createdAtDate;
+  const secondsAgo = Math.floor(timeDifference / 1000);
+  const minutesAgo = Math.floor(secondsAgo / 60);
+  const hoursAgo = Math.floor(minutesAgo / 60);
+    let timeAgo;
+  if (secondsAgo < 60) {
+    timeAgo = `${secondsAgo} second${secondsAgo > 1 ? "s" : ""} ago`;
+  } else if (minutesAgo < 60) {
+    timeAgo = `${minutesAgo} minute${minutesAgo > 1 ? "s" : ""} ago`;
+  } else if (hoursAgo < 24) {
+    timeAgo = `${hoursAgo} hour${hoursAgo > 1 ? "s" : ""} ago`;
+  } else {
+    const daysAgo = Math.floor(hoursAgo / 24);
+    timeAgo = `${daysAgo} day${daysAgo > 1 ? "s" : ""} ago`;
+  }
+  reply.timeAgo = timeAgo;
+}, 1000)
+}
+
+
 fetchData();
