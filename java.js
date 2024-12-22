@@ -12,6 +12,7 @@ async function fetchData() {
 }
 
 let count;
+let username;
 function commentMessages(comments) {
   count = 0;
   const commentsContainer = document.querySelector(".comments");
@@ -170,7 +171,7 @@ const editComment = (commentId, commentContent) => {
     if (parentContainer.classList.contains("comment-container")) {
       parentContainer.innerHTML = `<p class="comment-content break-words whitespace-pre-wrap">${originalContent}</p>`;
     } else {
-      parentContainer.innerHTML = `<p class="break-words whitespace-pre-wrap"><span class="reply-username text-Moderate-blue font-bold">@${originalContent.split(" ")[0]}</span> ${originalContent.split(" ").slice(1).join(" ")}</p>`;
+      parentContainer.innerHTML = `<p class="break-words whitespace-pre-wrap"><span class="reply-username text-Moderate-blue font-bold">@ ${originalContent}</p>`;
     }
   }
   const existingReplyBox = document.querySelector(".reply-box");
@@ -262,25 +263,27 @@ const addReply = (commentId, replyId = null) => {
     alert("Reply can't be empty");
     return;
   }
-  const newReply = {
-    id: count++,
-    content: replyInput.value,
-    createdAt: "Just now",
-    score: 0,
-    replyingTo: "wastyghj",
-    user: {
-      image: {
-        png: "./images/avatars/image-juliusomo.png",
-        webp: "./images/avatars/image-juliusomo.webp",
-      },
-      username: "juliusomo",
-    },
-  };
 
   const comment = commentsData.comments.find(
     (comment) => comment.id === commentId,
   );
   if (comment) {
+    username = comment.user.username;
+
+    const newReply = {
+      id: count++,
+      content: replyInput.value,
+      createdAt: "Just now",
+      score: 0,
+      replyingTo: username,
+      user: {
+        image: {
+          png: "./images/avatars/image-juliusomo.png",
+          webp: "./images/avatars/image-juliusomo.webp",
+        },
+        username: "juliusomo",
+      },
+    };
     comment.replies.push(newReply);
     console.log(commentsData);
 
