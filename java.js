@@ -2,7 +2,7 @@ let commentsData = {};
 async function fetchData() {
   try {
     const response = await fetch("./data.json");
-    if (!response.ok) throw new Error("Failed to fetch advice");
+    if (!response.ok) throw new Error("Failed to fetch data");
 
     commentsData = await response.json();
     commentMessages(commentsData);
@@ -132,6 +132,7 @@ const showReplyBox = (commentId, replyId = null) => {
       parentContainer.innerHTML = `<p class="comment-content break-words whitespace-pre-wrap">${originalContent}</p>`;
     } else {
       parentContainer.innerHTML = `<p class="break-words whitespace-pre-wrap"><span class="reply-username text-Moderate-blue font-bold">@${originalContent.split(" ")[0]}</span> ${originalContent.split(" ").slice(1).join(" ")}</p>`;
+    }
     }
   }
   const existingReplyBox = document.querySelector(".reply-box");
