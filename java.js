@@ -7,7 +7,7 @@ async function fetchData() {
     commentsData = await response.json();
     commentMessages(commentsData);
     updateTime();
-    setInterval(updateTime, 0);
+    setInterval(updateTime, 1000);
   } catch (error) {
     console.error("Error fetching data");
   }
