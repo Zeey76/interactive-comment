@@ -110,13 +110,14 @@ const addNewComment = () => {
   const newComment = {
     id: count++,
     content: newCommentInput.value,
-    createdAt: "Just now",
+    createdAt: new Date(),
     score: 0,
     user: commentsData.currentUser,
     replies: [],
   };
   commentsData.comments.push(newComment);
   newCommentInput.value = "";
+  updateTime(newComment)
   commentMessages(commentsData);
 };
 
@@ -124,15 +125,7 @@ const showReplyBox = (commentId, replyId = null) => {
   // Remove any existing edit textarea or reply box
   const existingEditBox = document.querySelector(".edit-textarea");
   if (existingEditBox) {
-    const parentContainer = existingEditBox.closest(
-      ".comment-container, .reply-container",
-    );
-    const originalContent = existingEditBox.originalContent;
-    if (parentContainer.classList.contains("comment-container")) {
-      parentContainer.innerHTML = `<p class="comment-content break-words whitespace-pre-wrap">${originalContent}</p>`;
-    } else {
-      parentContainer.innerHTML = `<p class="break-words whitespace-pre-wrap"><span class="reply-username text-Moderate-blue font-bold">@${originalContent.split(" ")[0]}</span> ${originalContent.split(" ").slice(1).join(" ")}</p>`;
-    }
+    commentMessages(commentsData)
   }
   const existingReplyBox = document.querySelector(".reply-box");
   if (existingReplyBox) {
@@ -164,15 +157,7 @@ const editComment = (commentId, commentContent) => {
   // Remove any existing edit textarea or reply box
   const existingEditBox = document.querySelector(".edit-textarea");
   if (existingEditBox) {
-    const parentContainer = existingEditBox.closest(
-      ".comment-container, .reply-container",
-    );
-    const originalContent = existingEditBox.originalContent;
-    if (parentContainer.classList.contains("comment-container")) {
-      parentContainer.innerHTML = `<p class="comment-content break-words whitespace-pre-wrap">${originalContent}</p>`;
-    } else {
-      parentContainer.innerHTML = `<p class="break-words whitespace-pre-wrap"><span class="reply-username text-Moderate-blue font-bold">@ ${originalContent}</p>`;
-    }
+    commentMessages(commentsData)
   }
   const existingReplyBox = document.querySelector(".reply-box");
   if (existingReplyBox) {
@@ -212,15 +197,7 @@ const editReply = (commentId, replyId, replyContent) => {
   // Remove any existing edit textarea or reply box
   const existingEditBox = document.querySelector(".edit-textarea");
   if (existingEditBox) {
-    const parentContainer = existingEditBox.closest(
-      ".comment-container, .reply-container",
-    );
-    const originalContent = existingEditBox.originalContent;
-    if (parentContainer.classList.contains("comment-container")) {
-      parentContainer.innerHTML = `<p class="comment-content break-words whitespace-pre-wrap">${originalContent}</p>`;
-    } else {
-      parentContainer.innerHTML = `<p class="break-words whitespace-pre-wrap"><span class="reply-username text-Moderate-blue font-bold">@${originalContent.split(" ")[0]}</span> ${originalContent.split(" ").slice(1).join(" ")}</p>`;
-    }
+    commentMessages(commentsData)
   }
   const existingReplyBox = document.querySelector(".reply-box");
   if (existingReplyBox) {
@@ -266,14 +243,24 @@ const addReply = (commentId, replyId = null) => {
 
   const comment = commentsData.comments.find(
     (comment) => comment.id === commentId,
-  );
+  )
+
   if (comment) {
-    username = comment.user.username;
+    let username = "";
+    if (replyId) {
+      const reply = comment.replies.find((reply) => reply.id === replyId)
+      if (reply) {
+        username = reply.user.username
+      }
+    } else {
+      username = comment.user.username 
+    }
+
 
     const newReply = {
-      id: count++,
+      id: comment.id,
       content: replyInput.value,
-      createdAt: "Just now",
+      createdAt: new Date(),
       score: 0,
       replyingTo: username,
       user: {
@@ -282,11 +269,18 @@ const addReply = (commentId, replyId = null) => {
           webp: "./images/avatars/image-juliusomo.webp",
         },
         username: "juliusomo",
-      },
+      }
     };
-    comment.replies.push(newReply);
-    console.log(commentsData);
 
+    if (replyId) {
+      const parentReplyIndex = comment.replies.findIndex((reply) => reply.id === replyId);
+      if (parentReplyIndex !== -1) {
+        comment.replies.splice(parentReplyIndex + 1, 0, newReply);
+      }
+    } else {
+      comment.replies.push(newReply)
+    }
+    updateTime(newReply)
     commentMessages(commentsData);
   }
 };
@@ -318,4 +312,31 @@ const deleteReply = (commentId, replyId) => {
 const sendButton = document.querySelector(".send-button");
 sendButton.addEventListener("click", addNewComment);
 
+function updateTime (reply) {
+  const update = setInterval(() => {
+    const now = new Date();
+    const createdAtDate = new Date(reply.createdAt);
+    const timeDifference = now - createdAtDate;
+    const secondsAgo = Math.floor(timeDifference / 1000);
+    const minutesAgo = Math.floor(secondsAgo / 60);
+    const hoursAgo = Math.floor(minutesAgo / 60);
+
+    let timesAgo = "";
+    if (secondsAgo < 60) {
+      timesAgo = `${secondsAgo} second${secondsAgo > 1 ? "s" : ""} ago`;
+    } else if (minutesAgo < 60) {
+      timesAgo = `${minutesAgo} minute${minutesAgo > 1 ? "s" : ""} ago`;
+    } else if (hoursAgo < 24) {
+      timesAgo = `${hoursAgo} hour${hoursAgo > 1 ? "s" : ""} ago`;
+    } else {
+      const daysAgo = Math.floor(hoursAgo / 24);
+      timesAgo = `${daysAgo} day${daysAgo > 1 ? "s" : ""} ago`
+    }
+    reply.createdAt = timesAgo;
+    commentMessages(commentsData)
+    if (hoursAgo >= 24) {
+      clearInterval(update)
+    }
+  }, 1000)
+}
 fetchData();
