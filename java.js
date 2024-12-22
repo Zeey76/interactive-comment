@@ -2,11 +2,12 @@ let commentsData = {};
 async function fetchData() {
   try {
     const response = await fetch("./data.json");
-    if (!response.ok) throw new Error("Failed to fetch advice");
+    if (!response.ok) throw new Error("Failed to fetch data");
 
     commentsData = await response.json();
     commentMessages(commentsData);
-    setInterval(updateTime, 1000);
+    updateTime();
+    setInterval(updateTime, 0);
   } catch (error) {
     console.error("Error fetching data");
   }
@@ -23,10 +24,9 @@ function commentMessages(comments) {
     count++;
     comment.id = count;
     const replies = comment.replies;
-    console.log(replies);
     commentsContainer.innerHTML += `
             
-        <div class="comment flex flex-col gap-4  rounded-lg" id="comment-${comment.id}">
+        <div class="comment flex flex-col gap-4  rounded-lg " id="comment-${comment.id}">
           <div class="commentt w-full flex items-start gap-4 bg-white rounded-lg p-5 relative">
           <div
             class="score bg-Light-gray flex flex-col items-center justify-center gap-3 rounded-lg px-2 py-3"
@@ -39,7 +39,7 @@ function commentMessages(comments) {
             <div class="flex gap-4 items-center">
               <img src="${comment.user.image.webp}" class="w-9">
               <p>${comment.user.username}</p>
-              <p class="created-at">${comment.timesAgo ? comment.timesAgo : comment.createdAt}</p>
+              <p class="created-at" data-id="comment-${comment.id}">${calculateTimeAgo(comment.createdAt)}</p>
               <div class="comment-actions ml-auto">
                 ${
                   comment.user.username === comments.currentUser.username
@@ -49,8 +49,7 @@ function commentMessages(comments) {
                   </div>`
                     : `<button class="flex items-center gap-2 ml-auto" onclick="showReplyBox(${comment.id})"><img src="./images/icon-reply.svg" class="w-4 h-4"><p>Reply</p></button>`
                 }
-              </div>
-              
+              </div>           
             </div>
             <div class="comment-container">
              <p class="comment-content break-words whitespace-pre-wrap">${comment.content}</p>
@@ -58,7 +57,6 @@ function commentMessages(comments) {
           </div>
           </div>
         </div>
-        
             `;
     replies.forEach((reply) => {
       count++;
@@ -77,7 +75,7 @@ function commentMessages(comments) {
             <div class="flex gap-4 items-center">
               <img src="${reply.user.image.webp}" class="w-9">
               <p>${reply.user.username}</p>
-              <p class="created-at">${reply.timesAgo ? reply.timesAgo : reply.createdAt}</p>
+              <p class="created-at" data-id="reply-${reply.id}">${calculateTimeAgo(reply.createdAt)}</p>
               <div class="comment-actions ml-auto">
                 ${
                   reply.user.username === comments.currentUser.username
@@ -98,7 +96,6 @@ function commentMessages(comments) {
         
             `;
     });
-    console.log(commentsContainer);
   });
 }
 
@@ -123,7 +120,6 @@ const addNewComment = () => {
 };
 
 const showReplyBox = (commentId, replyId = null) => {
-  // Remove any existing edit textarea or reply box
   const existingEditBox = document.querySelector(".edit-textarea");
   if (existingEditBox) {
     commentMessages(commentsData);
@@ -155,7 +151,6 @@ const showReplyBox = (commentId, replyId = null) => {
 };
 
 const editComment = (commentId, commentContent) => {
-  // Remove any existing edit textarea or reply box
   const existingEditBox = document.querySelector(".edit-textarea");
   if (existingEditBox) {
     commentMessages(commentsData);
@@ -185,17 +180,21 @@ const editComment = (commentId, commentContent) => {
   commentContainer.appendChild(updateButton);
 
   updateButton.addEventListener("click", () => {
-    const updatedText = textarea.value;
-    const comment = commentsData.comments.find((c) => c.id === commentId);
-    if (comment) {
-      comment.content = updatedText;
-      commentMessages(commentsData);
+    let updatedText = textarea.value;
+    if (!updatedText.trim()) {
+      updatedText = textarea.originalContent;
+    } else {
+      const comment = commentsData.comments.find((c) => c.id === commentId);
+      if (comment) {
+        comment.content = updatedText;
+        comment.createdAt = new Date();
+      }
     }
+    commentMessages(commentsData);
   });
 };
 
 const editReply = (commentId, replyId, replyContent) => {
-  // Remove any existing edit textarea or reply box
   const existingEditBox = document.querySelector(".edit-textarea");
   if (existingEditBox) {
     commentMessages(commentsData);
@@ -225,13 +224,18 @@ const editReply = (commentId, replyId, replyContent) => {
   replyContainer.appendChild(updateButton);
 
   updateButton.addEventListener("click", () => {
-    const updatedText = textarea.value;
-    const comment = commentsData.comments.find((c) => c.id === commentId);
-    if (comment) {
-      const reply = comment.replies.find((r) => r.id === replyId);
-      reply.content = updatedText;
-      commentMessages(commentsData);
+    let updatedText = textarea.value;
+    if (!updatedText.trim()) {
+      updatedText = textarea.originalContent;
+    } else {
+      const comment = commentsData.comments.find((c) => c.id === commentId);
+      if (comment) {
+        const reply = comment.replies.find((r) => r.id === replyId);
+        reply.content = updatedText;
+        reply.createdAt = new Date();
+      }
     }
+    commentMessages(commentsData);
   });
 };
 
@@ -304,7 +308,6 @@ const deleteReply = (commentId, replyId) => {
       (reply) => reply.id === replyId,
     );
     if (replyIndex !== -1) {
-      console.log(replyIndex);
       comments[comment].replies.splice(replyIndex, 1);
       commentMessages(commentsData);
     }
@@ -316,12 +319,16 @@ sendButton.addEventListener("click", addNewComment);
 
 function updateTime() {
   commentsData.comments.forEach((comment) => {
-    const commentElement = document.querySelector(`.created-at[data-id="comment-${comment.id}"]`);
+    const commentElement = document.querySelector(
+      `.created-at[data-id="comment-${comment.id}"]`,
+    );
     if (commentElement) {
       commentElement.textContent = calculateTimeAgo(comment.createdAt);
     }
     comment.replies.forEach((reply) => {
-      const replyElement = document.querySelector(`.created-at[data-id="reply-${reply.id}"]`);
+      const replyElement = document.querySelector(
+        `.created-at[data-id="reply-${reply.id}"]`,
+      );
       if (replyElement) {
         replyElement.textContent = calculateTimeAgo(reply.createdAt);
       }
@@ -330,27 +337,27 @@ function updateTime() {
 }
 
 function calculateTimeAgo(date) {
-  const update = setInterval( () => {
+  if (isNaN(date)) {
+    return date;
+  }
   const now = new Date();
-  const createdAtDate = new Date(date);
+  const createdAtDate = date;
   const timeDifference = now - createdAtDate;
   const secondsAgo = Math.floor(timeDifference / 1000);
   const minutesAgo = Math.floor(secondsAgo / 60);
   const hoursAgo = Math.floor(minutesAgo / 60);
-    let timeAgo;
-  if (secondsAgo < 60) {
-    timeAgo = `${secondsAgo} second${secondsAgo > 1 ? "s" : ""} ago`;
+  if (secondsAgo < 1) {
+    return "Just now";
+  } else if (secondsAgo < 60) {
+    return `${secondsAgo} second${secondsAgo > 1 ? "s" : ""} ago`;
   } else if (minutesAgo < 60) {
-    timeAgo = `${minutesAgo} minute${minutesAgo > 1 ? "s" : ""} ago`;
+    return `${minutesAgo} minute${minutesAgo > 1 ? "s" : ""} ago`;
   } else if (hoursAgo < 24) {
-    timeAgo = `${hoursAgo} hour${hoursAgo > 1 ? "s" : ""} ago`;
+    return `${hoursAgo} hour${hoursAgo > 1 ? "s" : ""} ago`;
   } else {
     const daysAgo = Math.floor(hoursAgo / 24);
-    timeAgo = `${daysAgo} day${daysAgo > 1 ? "s" : ""} ago`;
+    return `${daysAgo} day${daysAgo > 1 ? "s" : ""} ago`;
   }
-  reply.timeAgo = timeAgo;
-}, 1000)
 }
-
 
 fetchData();
