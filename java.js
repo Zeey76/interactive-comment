@@ -31,13 +31,13 @@ function commentMessages(comments) {
           <div
             class="score bg-Light-gray flex flex-col items-center justify-center gap-3 rounded-lg px-2 py-3"
           >
-            <img src="./images/icon-plus.svg" />
+            <img src="./images/icon-plus.svg" alt=""/>
             <p>${comment.score}</p>
-            <img src="./images/icon-minus.svg" />
+            <img src="./images/icon-minus.svg" alt=""/>
           </div>
           <div class="comment-message flex flex-col gap-2 w-full">
             <div class="flex gap-4 items-center">
-              <img src="${comment.user.image.webp}" class="w-9">
+              <img src="${comment.user.image.webp}" class="w-9" alt="">
               <p>${comment.user.username}</p>
               <p class="created-at" data-id="comment-${comment.id}">${calculateTimeAgo(comment.createdAt)}</p>
               <div class="comment-actions ml-auto">
@@ -67,13 +67,13 @@ function commentMessages(comments) {
           <div
             class="score bg-Light-gray flex flex-col items-center justify-center gap-3 rounded-lg px-2 py-3"
           >
-            <img src="./images/icon-plus.svg" />
+            <img src="./images/icon-plus.svg" alt=""/>
             <p>${reply.score}</p>
-            <img src="./images/icon-minus.svg" />
+            <img src="./images/icon-minus.svg" alt=""/>
           </div>
           <div class="comment-message flex flex-col gap-2 w-full">
             <div class="flex gap-4 items-center">
-              <img src="${reply.user.image.webp}" class="w-9">
+              <img src="${reply.user.image.webp}" class="w-9" alt=""/>
               <p>${reply.user.username}</p>
               <p class="created-at" data-id="reply-${reply.id}">${calculateTimeAgo(reply.createdAt)}</p>
               <div class="comment-actions ml-auto">
@@ -135,7 +135,7 @@ const showReplyBox = (commentId, replyId = null) => {
 
   const replyBox = `
     <div class="reply-box flex items-start gap-3 rounded-lg bg-white p-5">
-          <img src="./images/avatars/image-juliusomo.png" class="h-9 w-9" />
+          <img src="./images/avatars/image-juliusomo.png" class="h-9 w-9" alt=""/>
           <textarea
             class="new-reply h-24 w-full resize-none overflow-y-auto rounded-lg border border-gray-300 p-2"
             placeholder="Add a reply..."

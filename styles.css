@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 body {
   background-color: hsl(228, 33%, 97%);
 }
@@ -13,11 +14,21 @@ body {
   width: 90%;
 }
 
-body{
+body {
   display: flex;
   width: 100%;
   justify-content: center;
   align-items: center;
+}
+
+
+.attribution {
+  font-size: 11px;
+  text-align: center;
+}
+
+.attribution a {
+  color: hsl(228, 45%, 44%);
 }
 
 @media (max-width: 40rem) {
@@ -37,6 +48,7 @@ body{
   .replies {
     width: 100%;
   }
+  
   .comment-actions {
     display: flex;
     position: absolute;
@@ -45,11 +57,3 @@ body{
   }
 }
 
-.attribution {
-  font-size: 11px;
-  text-align: center;
-}
-
-.attribution a {
-  color: hsl(228, 45%, 44%);
-}
